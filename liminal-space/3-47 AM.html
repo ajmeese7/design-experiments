@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>3:47 AM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #0a0d14; height: 100%; }
+  #root { height: 100vh; width: 100vw; }
+  * { box-sizing: border-box; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<template id="__bundler_thumbnail" data-bg-color="#0a0d14">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#0a0d14"/>
+    <text x="600" y="440" text-anchor="middle" font-family="ui-monospace, monospace" font-size="120" fill="#e8ecf0" font-weight="300">03:47</text>
+  </svg>
+</template>
+<div id="root"></div>
+<script type="text/babel">
+// 3:47 AM — temporal liminal
+// A site that only fully "exists" during liminal hours.
+// We show 3:47am state as the default for the mockup, but UI acknowledges
+// time-of-day gating. Content is other people's thoughts at this hour.
+
+function FourThirtySevenDirection() {
+  const [time, setTime] = React.useState({ h: 3, m: 47, s: 12 });
+
+  React.useEffect(() => {
+    const t = setInterval(() => setTime((x) => {
+      let { h, m, s } = x;
+      s += 1;
+      if (s >= 60) { s = 0; m += 1; }
+      if (m >= 60) { m = 0; h = (h + 1) % 24; }
+      return { h, m, s };
+    }), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const pad = (n) => String(n).padStart(2, '0');
+
+  const thoughts = [
+    { u: 'anon · 41° N', t: 'i think my ceiling has more cracks than last year', at: '03:44' },
+    { u: 'anon · 34° S', t: 'the dog is awake with me. this is our third night.', at: '03:41' },
+    { u: 'anon · 52° N', t: 'i keep rereading the same text i didn\'t send', at: '03:38' },
+    { u: 'anon · 19° N', t: 'there\'s a sound and i can\'t tell if it\'s inside the house', at: '03:33' },
+    { u: 'anon · 48° N', t: 'i don\'t remember being this age before', at: '03:29' },
+  ];
+
+  return (
+    <div style={{
+      width: '100%', height: '100%', background: '#0a0d14', color: '#c8cfd8',
+      fontFamily: '"EB Garamond", Georgia, serif',
+      position: 'relative', overflow: 'hidden',
+      display: 'flex', flexDirection: 'column',
+    }}>
+      {/* starfield */}
+      {[...Array(40)].map((_, i) => (
+        <div key={i} style={{
+          position: 'absolute', width: 1, height: 1, background: '#fff',
+          left: `${(i * 37) % 100}%`, top: `${(i * 53) % 100}%`,
+          opacity: 0.1 + ((i * 7) % 5) * 0.1,
+        }} />
+      ))}
+
+      {/* moon glow */}
+      <div style={{
+        position: 'absolute', top: -80, right: -80, width: 260, height: 260, borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(200,207,216,0.12) 0%, transparent 70%)',
+        pointerEvents: 'none',
+      }} />
+
+      {/* header: the clock */}
+      <div style={{
+        padding: '28px 28px 20px', borderBottom: '1px solid rgba(200,207,216,0.1)',
+        position: 'relative', zIndex: 2,
+      }}>
+        <div style={{
+          fontFamily: 'ui-monospace, monospace', fontSize: 10, letterSpacing: 0.25,
+          textTransform: 'uppercase', opacity: 0.5, marginBottom: 6,
+        }}>your local time</div>
+        <div style={{
+          fontFamily: 'ui-monospace, monospace', fontSize: 52, fontWeight: 300,
+          letterSpacing: -1, fontVariantNumeric: 'tabular-nums', color: '#e8ecf0',
+        }}>
+          {pad(time.h)}:{pad(time.m)}<span style={{ opacity: 0.35, fontSize: 36 }}>:{pad(time.s)}</span>
+        </div>
+      </div>
+
+      {/* status */}
+      <div style={{ padding: '24px 28px', fontSize: 13, lineHeight: 1.6 }}>
+        <span style={{
+          display: 'inline-block', width: 6, height: 6, borderRadius: '50%',
+          background: '#d9c78a', marginRight: 10, verticalAlign: 'middle',
+          boxShadow: '0 0 8px #d9c78a',
+        }} />
+        <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11, letterSpacing: 0.12, textTransform: 'uppercase' }}>
+          The site is open.
+        </span>
+        <p style={{
+          marginTop: 14, fontSize: 21, lineHeight: 1.4, maxWidth: 420, fontStyle: 'italic',
+          color: '#d8dfe8',
+        }}>
+          Between 3 and 5 in the morning, local time, anyone can leave a thought here.
+          In the day, the door is locked.
+        </p>
+      </div>
+
+      {/* the feed */}
+      <div style={{
+        flex: 1, overflow: 'hidden', padding: '8px 28px 16px',
+        borderTop: '1px solid rgba(200,207,216,0.08)',
+      }}>
+        <div style={{
+          fontFamily: 'ui-monospace, monospace', fontSize: 10, letterSpacing: 0.2,
+          textTransform: 'uppercase', opacity: 0.4, marginBottom: 16, display: 'flex', justifyContent: 'space-between',
+        }}>
+          <span>Tonight</span>
+          <span>142 awake</span>
+        </div>
+        {thoughts.map((th, i) => (
+          <div key={i} style={{
+            padding: '14px 0', borderBottom: '1px solid rgba(200,207,216,0.06)',
+            opacity: 1 - i * 0.12,
+          }}>
+            <div style={{
+              fontSize: 18, lineHeight: 1.35, color: '#e0e5ec', marginBottom: 6,
+              fontStyle: 'italic',
+            }}>"{th.t}"</div>
+            <div style={{
+              fontFamily: 'ui-monospace, monospace', fontSize: 10, opacity: 0.45, letterSpacing: 0.1,
+              display: 'flex', justifyContent: 'space-between',
+            }}>
+              <span>{th.u}</span><span>{th.at}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* compose */}
+      <div style={{
+        padding: '14px 28px 20px', borderTop: '1px solid rgba(200,207,216,0.1)',
+        background: 'rgba(255,255,255,0.02)',
+      }}>
+        <div style={{
+          fontFamily: 'ui-monospace, monospace', fontSize: 12, opacity: 0.5,
+          display: 'flex', alignItems: 'center', gap: 8,
+        }}>
+          <span style={{ opacity: 0.6 }}>&gt;</span>
+          <span style={{ fontStyle: 'italic' }}>what are you thinking, right now</span>
+          <span style={{ opacity: 0.4, animation: 'blk 1s infinite' }}>_</span>
+        </div>
+      </div>
+      <style>{`@keyframes blk{0%,49%{opacity:.7}50%,100%{opacity:0}}`}</style>
+    </div>
+  );
+}
+
+window.FourThirtySevenDirection = FourThirtySevenDirection;
+
+</script>
+<script type="text/babel">
+ReactDOM.createRoot(document.getElementById('root')).render(<FourThirtySevenDirection />);
+</script>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Backrooms — Field Archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #0d0f0a; height: 100%; }
+  #root { height: 100vh; width: 100vw; }
+  * { box-sizing: border-box; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<template id="__bundler_thumbnail" data-bg-color="#0d0f0a">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#0d0f0a"/>
+    <g fill="none" stroke="#d9c78a" stroke-width="3" opacity="0.7">
+      <rect x="400" y="240" width="400" height="320"/>
+    </g>
+    <text x="600" y="430" text-anchor="middle" font-family="Georgia, serif" font-size="56" font-style="italic" fill="#d9c78a">field archive</text>
+  </svg>
+</template>
+<div id="root"></div>
+<script type="text/babel">
+// BACKROOMS — expanded SCP-style archive
+// Three sub-views in one artboard, cycling on a timer:
+// (A) Index — masonry of entries with flashlight reveal
+// (B) Case file — one entry expanded with redacted prose
+// (C) Sightings log — append-only feed of anonymous reports
+
+function BackroomsDirection() {
+  const [view, setView] = React.useState('index');  // index | file | log
+  const [hover, setHover] = React.useState(null);
+  const [cursor, setCursor] = React.useState({ x: 50, y: 50 });
+  const rootRef = React.useRef(null);
+
+  const entries = [
+    { id: 'L-00', loc: '41.4° N', t: '03:47', note: 'Fluorescent hum. No exit visible.', h: 280, cls: 'STABLE' },
+    { id: 'L-01', loc: 'REDACTED', t: '—',    note: 'Carpet patterning continues indefinitely.', h: 200, cls: 'UNBOUND' },
+    { id: 'L-02', loc: '51.5° N', t: '14:22', note: 'Natatorium. No water.', h: 340, cls: 'STABLE' },
+    { id: 'L-03', loc: 'REDACTED', t: '02:11', note: 'Staircase. Direction inconsistent.', h: 240, cls: 'NONEUCLIDEAN' },
+    { id: 'L-04', loc: '40.7° N', t: '—',    note: 'Mall interior. Post-tenancy.', h: 300, cls: 'STABLE' },
+    { id: 'L-05', loc: 'REDACTED', t: '—',    note: 'Waiting area. No chairs.', h: 220, cls: 'UNBOUND' },
+    { id: 'L-06', loc: '35.6° N', t: '04:08', note: 'Corridor. Length exceeds 200m.', h: 320, cls: 'STABLE' },
+    { id: 'L-07', loc: 'REDACTED', t: '—',    note: 'Parking structure. Level ambiguous.', h: 260, cls: 'NONEUCLIDEAN' },
+  ];
+
+  const views = ['index', 'file', 'log'];
+
+  return (
+    <div ref={rootRef} style={{
+      width: '100%', height: '100%', background: '#0d0f0a', color: '#d9c78a',
+      fontFamily: 'ui-monospace, "JetBrains Mono", "SF Mono", monospace',
+      overflow: 'hidden', position: 'relative', cursor: 'crosshair',
+      display: 'flex', flexDirection: 'column',
+    }} onMouseMove={(e) => {
+      const r = e.currentTarget.getBoundingClientRect();
+      setCursor({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 });
+    }}>
+      {/* scanlines */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 10,
+        background: 'repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(0,0,0,0.15) 3px, rgba(0,0,0,0.15) 4px)' }} />
+      {/* flashlight */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 11,
+        background: `radial-gradient(ellipse 50% 40% at ${cursor.x}% ${cursor.y}%, transparent 0%, rgba(0,0,0,0.15) 30%, rgba(0,0,0,0.75) 80%)`,
+        transition: 'background 0.15s' }} />
+
+      {/* header */}
+      <div style={{ position: 'relative', zIndex: 20, padding: '14px 20px',
+        borderBottom: '1px solid rgba(217,199,138,0.2)', display: 'flex', gap: 14, alignItems: 'center',
+        fontSize: 10, letterSpacing: 0.14, textTransform: 'uppercase',
+        background: 'rgba(13,15,10,0.85)', backdropFilter: 'blur(4px)' }}>
+        <span style={{ color: '#d9c78a' }}>◉</span>
+        <span>Field Archive</span>
+        <span style={{ opacity: 0.4 }}>/</span>
+        <div style={{ display: 'flex', gap: 2 }}>
+          {views.map((v) => (
+            <button key={v} onClick={() => setView(v)} style={{
+              background: view === v ? 'rgba(217,199,138,0.15)' : 'transparent',
+              border: '1px solid', borderColor: view === v ? '#d9c78a' : 'rgba(217,199,138,0.2)',
+              color: view === v ? '#e8dba8' : 'rgba(217,199,138,0.6)',
+              padding: '3px 8px', fontSize: 9, letterSpacing: 0.15, textTransform: 'uppercase',
+              cursor: 'pointer', fontFamily: 'inherit',
+            }}>{v}</button>
+          ))}
+        </div>
+        <div style={{ flex: 1 }} />
+        <span style={{ opacity: 0.5, fontVariantNumeric: 'tabular-nums' }}>n={entries.length}</span>
+      </div>
+
+      <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
+        {view === 'index' && <IndexView entries={entries} hover={hover} setHover={setHover} />}
+        {view === 'file'  && <CaseFileView entry={entries[0]} />}
+        {view === 'log'   && <LogView />}
+      </div>
+    </div>
+  );
+}
+
+function IndexView({ entries, hover, setHover }) {
+  return (
+    <div style={{ height: '100%', overflow: 'auto', padding: '28px 20px 40px' }}>
+      <div style={{ fontSize: 10, letterSpacing: 0.2, opacity: 0.5, marginBottom: 8 }}>VOL. 01 — INTERIORS</div>
+      <h1 style={{
+        fontFamily: '"EB Garamond", Georgia, serif',
+        fontSize: 40, lineHeight: 1, margin: 0, fontWeight: 400, letterSpacing: -0.5, color: '#e8dba8',
+      }}>Places we are<br/><em style={{ opacity: 0.7 }}>not meant</em> to be.</h1>
+      <p style={{ fontSize: 11, opacity: 0.6, maxWidth: 360, marginTop: 14, lineHeight: 1.6 }}>
+        An ongoing index of transitional interiors. Submitted anonymously.
+        Move the flashlight. Hover a frame to surface its note.
+      </p>
+
+      <div style={{ columnCount: 2, columnGap: 10, marginTop: 28 }}>
+        {entries.map((e, i) => (
+          <figure key={e.id}
+            onMouseEnter={() => setHover(e.id)}
+            onMouseLeave={() => setHover(null)}
+            style={{ breakInside: 'avoid', margin: '0 0 10px', position: 'relative', cursor: 'pointer' }}>
+            <div style={{
+              height: e.h * 0.75, position: 'relative',
+              background: `repeating-linear-gradient(${i * 23}deg, #1a1c14 0 6px, #22241a 6px 12px)`,
+              border: '1px solid rgba(217,199,138,0.15)',
+              filter: hover === e.id ? 'brightness(1.2) contrast(1.1)' : 'brightness(0.75)',
+              transition: 'filter 0.2s',
+            }}>
+              {['tl','tr','bl','br'].map((k) => (
+                <div key={k} style={{
+                  position: 'absolute', width: 8, height: 8, opacity: 0.6,
+                  top: k[0]==='t' ? 4 : 'auto', bottom: k[0]==='b' ? 4 : 'auto',
+                  left: k[1]==='l' ? 4 : 'auto', right: k[1]==='r' ? 4 : 'auto',
+                  borderTop: k[0]==='t' ? '1px solid #d9c78a' : 'none',
+                  borderBottom: k[0]==='b' ? '1px solid #d9c78a' : 'none',
+                  borderLeft: k[1]==='l' ? '1px solid #d9c78a' : 'none',
+                  borderRight: k[1]==='r' ? '1px solid #d9c78a' : 'none',
+                }} />
+              ))}
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 9, letterSpacing: 0.2, color: 'rgba(217,199,138,0.4)' }}>
+                [ IMG · {e.id} ]
+              </div>
+            </div>
+            <figcaption style={{ fontSize: 9, padding: '6px 2px 0', display: 'flex', justifyContent: 'space-between',
+              opacity: hover === e.id ? 1 : 0.55, transition: 'opacity 0.2s' }}>
+              <span>{e.id} · {e.loc}</span>
+              <span style={{ opacity: 0.6 }}>{e.cls}</span>
+            </figcaption>
+            {hover === e.id && (
+              <div style={{ position: 'absolute', top: 10, left: 10, right: 10,
+                background: 'rgba(13,15,10,0.92)', padding: '7px 9px',
+                fontSize: 9, lineHeight: 1.5, color: '#d9c78a', borderLeft: '2px solid #d9c78a' }}>{e.note}</div>
+            )}
+          </figure>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Redacted text: a span with solid blocks over it; hovering reveals the
+// word underneath in a classic "declassified with restrictions" feel.
+function Redacted({ children }) {
+  const [shown, setShown] = React.useState(false);
+  return (
+    <span onMouseEnter={() => setShown(true)} onMouseLeave={() => setShown(false)} style={{
+      background: shown ? 'transparent' : '#1a1c14',
+      color: shown ? '#d9c78a' : 'transparent',
+      padding: '0 2px', borderRadius: 1, cursor: 'help',
+      boxShadow: shown ? 'none' : 'inset 0 0 0 1px rgba(217,199,138,0.3)',
+      transition: 'all 0.15s',
+    }}>{children}</span>
+  );
+}
+
+function CaseFileView({ entry }) {
+  return (
+    <div style={{ height: '100%', overflow: 'auto', padding: '24px 24px 40px', position: 'relative' }}>
+      {/* stamps */}
+      <div style={{ position: 'absolute', top: 20, right: 20, transform: 'rotate(8deg)',
+        border: '2px solid rgba(178,42,42,0.7)', color: 'rgba(178,42,42,0.7)',
+        padding: '4px 10px', fontSize: 10, letterSpacing: 0.3, fontWeight: 600 }}>RESTRICTED</div>
+
+      <div style={{ fontSize: 9, opacity: 0.5, letterSpacing: 0.2 }}>
+        ENTRY {entry.id} · CLASS: {entry.cls}
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 10, fontSize: 10 }}>
+        <div><span style={{ opacity: 0.5 }}>LOC</span> {entry.loc}</div>
+        <div><span style={{ opacity: 0.5 }}>T</span> {entry.t}</div>
+        <div><span style={{ opacity: 0.5 }}>STATUS</span> OPEN</div>
+        <div><span style={{ opacity: 0.5 }}>AGENT</span> <Redacted>N. KESSLER</Redacted></div>
+      </div>
+
+      <div style={{
+        marginTop: 18, height: 180, position: 'relative',
+        background: 'repeating-linear-gradient(45deg, #1a1c14 0 6px, #22241a 6px 12px)',
+        border: '1px solid rgba(217,199,138,0.2)',
+      }}>
+        {['tl','tr','bl','br'].map((k) => (
+          <div key={k} style={{
+            position: 'absolute', width: 10, height: 10, opacity: 0.6,
+            top: k[0]==='t' ? 5 : 'auto', bottom: k[0]==='b' ? 5 : 'auto',
+            left: k[1]==='l' ? 5 : 'auto', right: k[1]==='r' ? 5 : 'auto',
+            borderTop: k[0]==='t' ? '1px solid #d9c78a' : 'none',
+            borderBottom: k[0]==='b' ? '1px solid #d9c78a' : 'none',
+            borderLeft: k[1]==='l' ? '1px solid #d9c78a' : 'none',
+            borderRight: k[1]==='r' ? '1px solid #d9c78a' : 'none',
+          }} />
+        ))}
+        <div style={{ position: 'absolute', bottom: 8, left: 10, fontSize: 9, opacity: 0.5 }}>PLATE 01 · {entry.id}</div>
+      </div>
+
+      <div style={{
+        marginTop: 22, fontFamily: '"EB Garamond", Georgia, serif',
+        fontSize: 14, lineHeight: 1.55,
+      }}>
+        <div style={{ fontSize: 10, letterSpacing: 0.2, opacity: 0.5, marginBottom: 10, fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: 0.15 }}>
+          <span style={{ fontFamily: 'ui-monospace, monospace' }}>&gt; field note, transcribed</span>
+        </div>
+        <p style={{ margin: 0 }}>
+          The subject entered at approximately <Redacted>03:41</Redacted>. Fluorescent lighting continued
+          in a color temperature inconsistent with any fixture catalogued by <Redacted>Bureau 7-C</Redacted>.
+          The hum was present but could not be localized.
+        </p>
+        <p>
+          No exit was visible. Walking in any direction for <Redacted>eleven minutes</Redacted> produced
+          the same view. The carpet pattern did not repeat; nor did it vary.
+        </p>
+        <p style={{ opacity: 0.7, fontStyle: 'italic' }}>
+          "You understand, after a while, that you are not lost. You are somewhere that
+          does not <Redacted>have a here</Redacted>."
+        </p>
+      </div>
+
+      <div style={{ marginTop: 28, fontSize: 9, opacity: 0.45, borderTop: '1px dashed rgba(217,199,138,0.2)',
+        paddingTop: 10, display: 'flex', justifyContent: 'space-between' }}>
+        <span>PAGE 1 / <Redacted>14</Redacted></span>
+        <span>← L-00  ·  L-02 →</span>
+      </div>
+    </div>
+  );
+}
+
+function LogView() {
+  const reports = [
+    { id: 'R-1428', t: '03:52', loc: '41.4° N',  ln: 'entered on accident. seventh floor, not marked.' },
+    { id: 'R-1427', t: '03:44', loc: 'UNKN',    ln: 'the pool. blue light. i am still inside.' },
+    { id: 'R-1426', t: '03:31', loc: '52.3° N',  ln: 'every door opens into the same hallway' },
+    { id: 'R-1425', t: '03:12', loc: 'UNKN',    ln: 'heard my name. was not my voice.' },
+    { id: 'R-1424', t: '02:58', loc: '34.0° N',  ln: 'the vending machine is warm' },
+    { id: 'R-1423', t: '02:41', loc: 'UNKN',    ln: 'stairs. i counted 71 and kept going.' },
+    { id: 'R-1422', t: '02:19', loc: '48.1° N',  ln: 'mall. music still playing. no one here.' },
+  ];
+  return (
+    <div style={{ height: '100%', overflow: 'auto', padding: '18px 20px 30px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, opacity: 0.55, letterSpacing: 0.15,
+        textTransform: 'uppercase', marginBottom: 16 }}>
+        <span>Sightings · append-only</span>
+        <span>↓ newest</span>
+      </div>
+      {reports.map((r, i) => (
+        <div key={r.id} style={{
+          borderLeft: i === 0 ? '2px solid #d9c78a' : '1px solid rgba(217,199,138,0.15)',
+          paddingLeft: 12, marginBottom: 14, opacity: 1 - i * 0.09,
+        }}>
+          <div style={{ display: 'flex', gap: 10, fontSize: 9, opacity: 0.55, letterSpacing: 0.1, marginBottom: 4 }}>
+            <span>{r.id}</span><span>{r.t}</span><span>{r.loc}</span>
+            {i === 0 && <span style={{ color: '#d9c78a', fontWeight: 500 }}>● LIVE</span>}
+          </div>
+          <div style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 14, lineHeight: 1.4, color: '#e8dba8', fontStyle: 'italic' }}>
+            "{r.ln}"
+          </div>
+        </div>
+      ))}
+      <div style={{ marginTop: 18, padding: '10px 12px', border: '1px dashed rgba(217,199,138,0.3)',
+        fontSize: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ opacity: 0.5 }}>&gt;</span>
+        <span style={{ opacity: 0.65, fontStyle: 'italic', fontFamily: '"EB Garamond", Georgia, serif', fontSize: 13 }}>
+          submit a sighting (anonymous)
+        </span>
+        <span style={{ marginLeft: 'auto', opacity: 0.4 }}>▸</span>
+      </div>
+    </div>
+  );
+}
+
+window.BackroomsDirection = BackroomsDirection;
+
+</script>
+<script type="text/babel">
+ReactDOM.createRoot(document.getElementById('root')).render(<BackroomsDirection />);
+</script>
+</body>
+</html>

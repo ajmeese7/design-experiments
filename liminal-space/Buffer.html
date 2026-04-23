@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Buffer — An Indefinite Wait</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #f6f5f1; height: 100%; }
+  #root { height: 100vh; width: 100vw; }
+  * { box-sizing: border-box; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<template id="__bundler_thumbnail" data-bg-color="#f6f5f1">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#f6f5f1"/>
+    <text x="600" y="400" text-anchor="middle" font-family="Georgia, serif" font-size="110" font-style="italic" fill="#1a1a1a">almost</text>
+    <rect x="440" y="460" width="320" height="2" fill="#1a1a1a" opacity="0.2"/>
+    <rect x="440" y="460" width="120" height="2" fill="#1a1a1a"/>
+  </svg>
+</template>
+<div id="root"></div>
+<script type="text/babel">
+// BUFFER — digital liminal (responsive)
+// The site IS a loading state. Never resolves.
+
+function BufferDirection() {
+  const [progress, setProgress] = React.useState(37);
+  const [dots, setDots] = React.useState('');
+  const [blink, setBlink] = React.useState(true);
+  const [log, setLog] = React.useState(0);
+  const ref = React.useRef(null);
+  const [w, setW] = React.useState(440);
+
+  React.useEffect(() => {
+    if (!ref.current) return;
+    setW(ref.current.getBoundingClientRect().width);
+    const ro = new ResizeObserver((e) => setW(e[0].contentRect.width));
+    ro.observe(ref.current);
+    return () => ro.disconnect();
+  }, []);
+
+  React.useEffect(() => {
+    const a = setInterval(() => setProgress((p) => {
+      const next = p + (Math.random() * 0.8 - 0.3);
+      return Math.max(34, Math.min(41, next));
+    }), 400);
+    const b = setInterval(() => setDots((d) => d.length >= 3 ? '' : d + '·'), 500);
+    const c = setInterval(() => setBlink((x) => !x), 600);
+    const d = setInterval(() => setLog((l) => l + 1), 2200);
+    return () => { clearInterval(a); clearInterval(b); clearInterval(c); clearInterval(d); };
+  }, []);
+
+  const logLines = [
+    'establishing connection',
+    'waiting for response from host',
+    'retry 1/∞',
+    'packet received — incomplete',
+    'buffering', 'stalled', 'resuming', 'waiting',
+  ];
+
+  // Fluid type: scale headline with container width. Clamp so it stays
+  // readable on tiny frames and doesn't dominate on huge ones.
+  const heroSize = Math.max(40, Math.min(110, w * 0.13));
+  const barW = Math.max(200, Math.min(520, w * 0.55));
+  const pad = Math.max(16, Math.min(48, w * 0.05));
+
+  return (
+    <div ref={ref} style={{
+      width: '100%', height: '100%',
+      background: '#f6f5f1', color: '#1a1a1a',
+      fontFamily: 'ui-monospace, "JetBrains Mono", monospace',
+      padding: 0, position: 'relative', overflow: 'hidden',
+      display: 'flex', flexDirection: 'column',
+    }}>
+      <div style={{
+        borderBottom: '1px solid rgba(0,0,0,0.1)', padding: `14px ${pad}px`,
+        display: 'flex', justifyContent: 'space-between', fontSize: 11, letterSpacing: 0.08,
+        textTransform: 'uppercase', opacity: 0.5, gap: 12, flexWrap: 'wrap',
+      }}>
+        <span>liminal.net</span>
+        <span style={{ opacity: 0.5 }}>—</span>
+        <span>an indefinite wait</span>
+      </div>
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: Math.max(20, w * 0.04), padding: pad }}>
+        <div style={{
+          fontFamily: '"EB Garamond", Georgia, serif',
+          fontSize: heroSize, lineHeight: 0.95, fontWeight: 400, letterSpacing: -1,
+          textAlign: 'center',
+          display: 'flex', alignItems: 'baseline', justifyContent: 'center',
+        }}>
+          <span>almost</span>
+          <span style={{
+            opacity: 0.35,
+            display: 'inline-block',
+            width: '2.2ch', textAlign: 'left',
+            fontSize: '0.55em',
+            marginLeft: '0.1em',
+          }}>{dots}</span>
+        </div>
+
+        <div style={{ width: barW, fontSize: 11, maxWidth: '92%' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontVariantNumeric: 'tabular-nums', opacity: 0.6 }}>
+            <span>loading</span>
+            <span>{progress.toFixed(1)}%</span>
+          </div>
+          <div style={{ height: 2, background: 'rgba(0,0,0,0.1)', position: 'relative' }}>
+            <div style={{
+              position: 'absolute', top: 0, left: 0, height: '100%',
+              width: `${progress}%`, background: '#1a1a1a',
+              transition: 'width 0.4s linear',
+            }} />
+          </div>
+          <div style={{
+            marginTop: 10, fontSize: 10, opacity: 0.45, height: 14,
+            fontVariantNumeric: 'tabular-nums',
+          }}>
+            › {logLines[log % logLines.length]}
+            <span style={{ opacity: blink ? 1 : 0 }}>_</span>
+          </div>
+        </div>
+
+        <div style={{
+          maxWidth: Math.min(520, w * 0.7), textAlign: 'center',
+          fontFamily: '"EB Garamond", Georgia, serif',
+          fontSize: Math.max(14, Math.min(22, w * 0.025)), lineHeight: 1.5, fontStyle: 'italic', opacity: 0.65,
+        }}>
+          The content you came for will not arrive.
+          That is the content.
+        </div>
+      </div>
+
+      <div style={{
+        borderTop: '1px solid rgba(0,0,0,0.08)', padding: `10px ${pad}px`,
+        fontSize: 10, letterSpacing: 0.1, display: 'flex', justifyContent: 'space-between',
+        opacity: 0.4, gap: 8, flexWrap: 'wrap',
+      }}>
+        <span>session uptime 04:12:38</span>
+        <span>↵ to wait longer · esc does nothing</span>
+      </div>
+    </div>
+  );
+}
+
+window.BufferDirection = BufferDirection;
+
+</script>
+<script type="text/babel">
+ReactDOM.createRoot(document.getElementById('root')).render(<BufferDirection />);
+</script>
+</body>
+</html>
