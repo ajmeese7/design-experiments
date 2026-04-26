@@ -1,0 +1,42 @@
+<svg viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#0d0f0a"/>
+
+  <!-- subtle grid lines -->
+  <g stroke="rgba(217,199,138,0.06)" stroke-width="1">
+    <line x1="0" y1="157" x2="1200" y2="157"/>
+    <line x1="0" y1="315" x2="1200" y2="315"/>
+    <line x1="0" y1="473" x2="1200" y2="473"/>
+    <line x1="300" y1="0" x2="300" y2="630"/>
+    <line x1="600" y1="0" x2="600" y2="630"/>
+    <line x1="900" y1="0" x2="900" y2="630"/>
+  </g>
+
+  <!-- four small thumbnail frames representing the experiments -->
+  <!-- Backrooms -->
+  <rect x="120" y="380" width="240" height="160" fill="#141610" stroke="rgba(217,199,138,0.2)" stroke-width="1" rx="4"/>
+  <g fill="none" stroke="#d9c78a" stroke-width="1.5" opacity="0.5">
+    <rect x="200" y="420" width="80" height="60"/>
+  </g>
+  <text x="240" y="495" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-style="italic" fill="#d9c78a" opacity="0.7">field archive</text>
+
+  <!-- 3:47 AM -->
+  <rect x="400" y="380" width="240" height="160" fill="#0a0d14" stroke="rgba(200,207,216,0.15)" stroke-width="1" rx="4"/>
+  <text x="520" y="470" text-anchor="middle" font-family="monospace" font-size="52" fill="#e8ecf0" font-weight="300" opacity="0.8">03:47</text>
+
+  <!-- Betwixt -->
+  <rect x="680" y="380" width="240" height="160" fill="#f4f1ea" stroke="rgba(0,0,0,0.1)" stroke-width="1" rx="4"/>
+  <line x1="720" y1="430" x2="880" y2="430" stroke="#1a1714" stroke-width="1.5" opacity="0.5"/>
+  <line x1="720" y1="490" x2="880" y2="490" stroke="#1a1714" stroke-width="1.5" opacity="0.5"/>
+  <text x="800" y="470" text-anchor="middle" font-family="Georgia, serif" font-size="36" font-style="italic" fill="#1a1714" opacity="0.7">betwixt</text>
+
+  <!-- Buffer -->
+  <rect x="960" y="380" width="200" height="160" fill="#f6f5f1" stroke="rgba(0,0,0,0.08)" stroke-width="1" rx="4"/>
+  <text x="1060" y="465" text-anchor="middle" font-family="Georgia, serif" font-size="48" font-style="italic" fill="#1a1a1a" opacity="0.7">almost</text>
+
+  <!-- Title -->
+  <text x="600" y="200" text-anchor="middle" font-family="Georgia, serif" font-size="52" fill="#e8dba8" letter-spacing="-0.5">Design Experiments</text>
+  <text x="600" y="250" text-anchor="middle" font-family="monospace" font-size="14" fill="rgba(217,199,138,0.55)" letter-spacing="0.12">liminal spaces &amp; transitional states</text>
+
+  <!-- accent line -->
+  <line x1="520" y1="280" x2="680" y2="280" stroke="#d9c78a" stroke-width="1" opacity="0.3"/>
+</svg>
