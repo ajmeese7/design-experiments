@@ -400,56 +400,57 @@
 
 <script>
 (function () {
-  'use strict';
+  "use strict";
 
   /* ── Element refs ──────────────────────────────── */
-  const overlay   = document.getElementById('overlay');
-  const iframe    = document.getElementById('overlayFrame');
-  const closeBtn  = document.getElementById('overlayClose');
-  const titleEl   = document.getElementById('overlayTitle');
-  const tagEl     = document.getElementById('overlayTag');
-  const grid      = document.getElementById('cardGrid');
-  const cards     = Array.from(grid.querySelectorAll('.card'));
+  const overlay   = document.getElementById("overlay");
+  const iframe    = document.getElementById("overlayFrame");
+  const closeBtn  = document.getElementById("overlayClose");
+  const titleEl   = document.getElementById("overlayTitle");
+  const tagEl     = document.getElementById("overlayTag");
+  const grid      = document.getElementById("cardGrid");
+  const cards     = Array.from(grid.querySelectorAll(".card"));
 
   let triggerCard = null;  // card that opened the overlay (for focus return)
 
   /* ── Slug map for URL routing ──────────────────── */
   const slugMap = {
-    'backrooms': 'liminal-space/Backrooms.html',
-    '3-47am':    'liminal-space/3-47 AM.html',
-    'betwixt':   'liminal-space/Betwixt.html',
-    'buffer':    'liminal-space/Buffer.html',
+    "backrooms": "liminal-space/Backrooms.html",
+    "3-47am":    "liminal-space/3-47 AM.html",
+    "betwixt":   "liminal-space/Betwixt.html",
+    "buffer":    "liminal-space/Buffer.html",
   };
 
   /* ── Open / close ──────────────────────────────── */
-  function openOverlay(card) {
+  // History model: an open overlay is its own history entry (url has #slug),
+  // a closed overlay is the root entry (no hash). Card click pushes; X / Esc
+  // pop back; the browser back button pops back too — same handler.
+  function openOverlay(card, { push = true } = {}) {
     triggerCard = card;
     const src = card.dataset.src;
     titleEl.textContent = card.dataset.title;
     tagEl.textContent   = card.dataset.tag;
     iframe.src = src;
-    overlay.classList.add('active');
-    overlay.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
+    overlay.classList.add("active");
+    overlay.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
 
-    // Set hash for direct linking
-    const slug = Object.keys(slugMap).find(k => slugMap[k] === src);
-    if (slug) {
-      history.replaceState(null, '', '#' + slug);
+    if (push) {
+      const slug = Object.keys(slugMap).find((k) => slugMap[k] === src);
+      if (slug) history.pushState({ slug }, "", "#" + slug);
     }
 
     // Focus the close button for accessibility
     setTimeout(() => closeBtn.focus(), 260);
   }
 
-  function closeOverlay() {
-    overlay.classList.remove('active');
-    overlay.setAttribute('aria-hidden', 'true');
-    iframe.src = 'about:blank';          // stop running apps
-    document.body.style.overflow = '';
+  function closeOverlay({ pop = true } = {}) {
+    overlay.classList.remove("active");
+    overlay.setAttribute("aria-hidden", "true");
+    iframe.src = "about:blank";          // stop running apps
+    document.body.style.overflow = "";
 
-    // Clear hash
-    history.replaceState(null, '', window.location.pathname + window.location.search);
+    if (pop) history.back();             // popstate handler will not re-close
 
     // Return focus to the card that opened it
     if (triggerCard) {
@@ -460,37 +461,37 @@
 
   /* ── Card interactions ─────────────────────────── */
   cards.forEach(card => {
-    card.addEventListener('click', () => openOverlay(card));
-    card.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
+    card.addEventListener("click", () => openOverlay(card));
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         openOverlay(card);
       }
     });
   });
 
-  closeBtn.addEventListener('click', closeOverlay);
+  closeBtn.addEventListener("click", closeOverlay);
 
   /* ── Keyboard: Escape to close ─────────────────── */
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && overlay.classList.contains('active')) {
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && overlay.classList.contains("active")) {
       e.preventDefault();
       closeOverlay();
     }
   });
 
   /* ── Keyboard: Left/Right arrows between cards ─── */
-  grid.addEventListener('keydown', (e) => {
-    if (overlay.classList.contains('active')) return;  // don't intercept when overlay is open
+  grid.addEventListener("keydown", (e) => {
+    if (overlay.classList.contains("active")) return;  // don't intercept when overlay is open
 
     const idx = cards.indexOf(document.activeElement);
     if (idx === -1) return;
 
     let nextIdx = -1;
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
       e.preventDefault();
       nextIdx = Math.min(idx + 1, cards.length - 1);
-    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
       e.preventDefault();
       nextIdx = Math.max(idx - 1, 0);
     }
@@ -499,26 +500,40 @@
     }
   });
 
-  /* ── URL hash routing on load ──────────────────── */
-  function checkHash() {
-    const hash = window.location.hash.slice(1); // strip '#'
-    if (!hash) return;
-    const src = slugMap[hash];
-    if (!src) return;
-    const card = cards.find(c => c.dataset.src === src);
-    if (card) {
-      // Wait for entrance animations to finish before opening
-      setTimeout(() => openOverlay(card), 900);
+  /* ── URL hash routing on load + browser nav ─────── */
+  // Sync overlay state to URL: if the current hash matches a slug, the
+  // overlay should be open; otherwise it should be closed. Called on
+  // initial load and on every browser back/forward.
+  function syncToHash({ animate = false } = {}) {
+    const hash = window.location.hash.slice(1);
+    const src  = slugMap[hash];
+    const isOpen = overlay.classList.contains("active");
+
+    if (src) {
+      if (isOpen) return;
+      const card = cards.find((c) => c.dataset.src === src);
+      if (!card) return;
+      const open = () => openOverlay(card, { push: false });
+      if (animate) setTimeout(open, 900); else open();
+    } else if (isOpen) {
+      closeOverlay({ pop: false });
     }
   }
 
-  window.addEventListener('hashchange', () => {
-    if (!overlay.classList.contains('active')) {
-      checkHash();
-    }
-  });
+  window.addEventListener("popstate", () => syncToHash());
 
-  checkHash();
+  // On initial load: if there's a deep-link hash, leave a root history
+  // entry behind it so the browser back button has somewhere to land
+  // (otherwise back would leave the site entirely).
+  (function bootstrapHistory() {
+    const hash = window.location.hash.slice(1);
+    if (slugMap[hash]) {
+      const root = window.location.pathname + window.location.search;
+      history.replaceState(null, "", root);
+      history.pushState({ slug: hash }, "", "#" + hash);
+    }
+    syncToHash({ animate: true });
+  })();
 
 })();
 </script>
