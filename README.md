@@ -1,6 +1,6 @@
 # Design Experiments
 
-> Liminal spaces & transitional states — interactive concepts that live in the in-between.
+> Single-page studies in interactive design — each one its own world.
 
 [**Live showcase ↗**](https://ajmeese7.github.io/design-experiments/)
 

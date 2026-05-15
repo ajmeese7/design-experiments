@@ -104,13 +104,13 @@ export function OgImage() {
       <div
         style={{
           position: "absolute",
-          top: 150,
+          top: 122,
           left: 0,
           width: 1200,
           display: "flex",
           justifyContent: "center",
           fontFamily: "EB Garamond",
-          fontSize: 52,
+          fontSize: 76,
           color: GOLD_BRIGHT,
           letterSpacing: -0.5,
         }}
@@ -122,25 +122,25 @@ export function OgImage() {
       <div
         style={{
           position: "absolute",
-          top: 230,
+          top: 232,
           left: 0,
           width: 1200,
           display: "flex",
           justifyContent: "center",
           fontFamily: "JetBrains Mono",
-          fontSize: 14,
+          fontSize: 30,
           color: GOLD_DIM,
-          letterSpacing: 1.5,
+          letterSpacing: 2,
         }}
       >
-        liminal spaces & transitional states
+        single-page studies in interactive design
       </div>
 
       {/* Accent line */}
       <div
         style={{
           position: "absolute",
-          top: 280,
+          top: 308,
           left: 520,
           width: 160,
           height: 1,
