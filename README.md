@@ -4,7 +4,7 @@
 
 [**Live showcase ↗**](https://ajmeese7.github.io/design-experiments/)
 
-![Design Experiments — four interactive liminal-space concepts](og-image.png)
+![Design Experiments — five interactive design concepts](og-image.png)
 
 A small archive of single-page design studies, each one trying to capture a
 specific kind of in-between: nocturnal, anonymous, archival, suspended. No
@@ -45,6 +45,15 @@ state that has decided, on its own, to be the destination.
 
 > *Direction:* digital liminality · *Palette:* light · *Flow:* stuck progress bar
 
+### [FlowCal — daily orientation for ADHD](adhd-calendar/)
+
+Soft time windows, never rigid blocks. An interactive demo of a calendar
+that bends when the day does — gentle rebalancing when you spend longer
+than planned, and a single "around now" view so the day always has a
+shape without locking you into one.
+
+> *Direction:* ADHD time design · *Palette:* warm paper · *Flow:* `live clock → soft windows → rebalance`
+
 ---
 
 ## Running it
@@ -65,16 +74,11 @@ GitHub Pages serves it directly from `main`.
 ```
 design-experiments/
 ├── index.html              # gallery + overlay router (deep-linked via #slug)
-├── liminal-space/          # one self-contained HTML per experiment
-│   ├── Backrooms.html
-│   ├── 3-47 AM.html
-│   ├── Betwixt.html
-│   └── Buffer.html
+├── liminal-space/          # one self-contained HTML per liminal-space concept
+├── adhd-calendar/          # FlowCal — interactive multi-file demo
 ├── og-image.png            # social preview (generated)
 ├── og-image.svg            #   (generated)
 └── scripts/                # SVG → PNG OG-image pipeline
-    ├── og-image.tsx        # JSX layout, rendered by satori
-    └── build-og.ts         # satori → svg → sharp → png
 ```
 
 ### Regenerating the social card
@@ -105,9 +109,10 @@ to its own world:
 - **Type does the work.** Layouts lean on EB Garamond italics and
   letterspaced JetBrains Mono caps before any decoration.
 - **Deep-linkable.** The gallery's overlay router updates the URL hash
-  (`#backrooms`, `#3-47am`, …) so any concept is shareable.
+  (`#backrooms`, `#3-47am`, `#flowcal`, …) so any concept is shareable.
 - **Self-contained.** Each experiment can be lifted out of the repo and
-  hosted as a single HTML file.
+  hosted on its own (single HTML for the liminal-space pieces; a small
+  folder for FlowCal).
 
 ## Inspiration
 

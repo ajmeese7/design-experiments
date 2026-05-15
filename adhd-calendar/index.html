@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>FlowCal — daily orientation for ADHD</title>
+<meta name="description" content="An interactive design demo: soft time windows and gentle rebalancing for ADHD daily orientation. Part of the Design Experiments showcase.">
+<meta name="author" content="ajmeese7">
+<meta name="theme-color" content="#fbf8f0">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23fbf8f0'/><text x='50' y='68' text-anchor='middle' font-family='Georgia,serif' font-size='48' font-style='italic' fill='%232b2620'>fc</text></svg>">
+
+<!-- Open Graph / Facebook / LinkedIn -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ajmeese7.github.io/design-experiments/adhd-calendar/">
+<meta property="og:title" content="FlowCal — daily orientation for ADHD">
+<meta property="og:description" content="Soft time windows, never rigid blocks — an interactive design demo for a calendar that bends when the day does.">
+<meta property="og:image" content="https://ajmeese7.github.io/design-experiments/og-image.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:alt" content="Design Experiments — five interactive design concepts">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="FlowCal — daily orientation for ADHD">
+<meta name="twitter:description" content="Soft time windows, never rigid blocks — an interactive design demo for a calendar that bends when the day does.">
+<meta name="twitter:image" content="https://ajmeese7.github.io/design-experiments/og-image.png">
+<meta name="twitter:image:alt" content="Design Experiments — five interactive design concepts">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --ink:        oklch(0.22 0.015 80);
+    --ink-2:      oklch(0.36 0.015 80);
+    --ink-3:      oklch(0.52 0.012 80);
+    --ink-4:      oklch(0.68 0.010 80);
+    --paper:      oklch(0.987 0.008 85);
+    --paper-2:    oklch(0.965 0.010 85);
+    --paper-3:    oklch(0.940 0.011 85);
+    --line:       oklch(0.90 0.012 85);
+    --line-2:     oklch(0.84 0.013 85);
+
+    --cat-focus:    oklch(0.74 0.085 250);
+    --cat-admin:    oklch(0.80 0.070 205);
+    --cat-chores:   oklch(0.83 0.075 150);
+    --cat-errands:  oklch(0.78 0.035 150);
+    --cat-meal:     oklch(0.86 0.090 75);
+    --cat-break:    oklch(0.83 0.070 290);
+    --cat-movement: oklch(0.82 0.095 135);
+    --cat-social:   oklch(0.80 0.100 30);
+    --cat-winddown: oklch(0.58 0.080 285);
+  }
+
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Geist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    height: 100%;
+  }
+  body { min-height: 100vh; }
+  * { box-sizing: border-box; }
+  #root { height: 100vh; }
+
+  .serif { font-family: "Newsreader", Georgia, serif; font-weight: 400; letter-spacing: -0.01em; }
+  .mono  { font-family: "JetBrains Mono", ui-monospace, monospace; }
+
+  .nb::-webkit-scrollbar { width: 0; height: 0; }
+  .nb { scrollbar-width: none; }
+
+  @keyframes flowcal-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes flowcal-pop-in {
+    from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes flowcal-slide-up {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes flowcal-tab-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes flowcal-expand-in {
+    from { opacity: 0; max-height: 0; }
+    to   { opacity: 1; max-height: 500px; }
+  }
+
+  .fc-fade   { animation: flowcal-fade-in   180ms ease-out both; }
+  .fc-pop    { animation: flowcal-pop-in    180ms cubic-bezier(.2,.7,.3,1) both; transform-origin: top left; }
+  .fc-slide  { animation: flowcal-slide-up  280ms cubic-bezier(.2,.7,.3,1) both; }
+  .fc-tabin  { animation: flowcal-tab-in    200ms cubic-bezier(.2,.7,.3,1) both; }
+  .fc-expand { animation: flowcal-expand-in 280ms cubic-bezier(.2,.7,.3,1) both; overflow: hidden; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fc-fade, .fc-pop, .fc-slide, .fc-tabin, .fc-expand {
+      animation: none !important;
+    }
+    * { transition: none !important; }
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    height: 4px; border-radius: 99px;
+    background: rgba(255,255,255,0.18);
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 14px; height: 14px; border-radius: 99px;
+    background: #FDFBF4; cursor: pointer;
+    border: 2px solid oklch(0.22 0.015 80);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 14px; height: 14px; border-radius: 99px;
+    background: #FDFBF4; cursor: pointer;
+    border: 2px solid oklch(0.22 0.015 80);
+  }
+  input[type="range"]:disabled { cursor: not-allowed; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="shared.jsx"></script>
+<script type="text/babel" src="screens.jsx"></script>
+<script type="text/babel" src="mvp-app.jsx"></script>
+</body>
+</html>
